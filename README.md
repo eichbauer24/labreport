@@ -1,4 +1,9 @@
-# Lab Report Marking Grid
+# Lab Report Marking Grid / Bewertungsraster Laborprotokoll
+
+- English: `index.html`
+- Deutsch: `de.html`
+
+Both pages share the same saved practicals and class list. / Beide Seiten teilen sich gespeicherte Versuche und Klassenliste.
 
 A marking grid for IB Chemistry lab reports, based on the four criteria of the scientific investigation: Research design, Data analysis, Conclusion and Evaluation, each worth 0–6 marks.
 

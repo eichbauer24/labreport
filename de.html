@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bewertungsraster Laborprotokoll</title>
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600&display=swap">
+<style>
+/* Layout: practical + group bar, setup drawer for look-for points, clickable rubric grid (criteria × bands), score + feedback strip, class list */
+:root{
+  --bg:#f2f4f6; --surface:#ffffff; --fg:#1b232b; --muted:#5d6975; --line:#d5dce3;
+  --accent:#24589a; --accent-soft:#e0e9f5; --chip:#ecf0f4; --look:#7a5a12; --look-bg:#fbf4e2;
+  --display:"IBM Plex Serif",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --surface:#18202a; --fg:#e2e8ee; --muted:#93a0ad; --line:#2a3542;
+  --accent:#7fb0ec; --accent-soft:#1a2c44; --chip:#202a35; --look:#e7c46f; --look-bg:#2b2615; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --surface:#18202a; --fg:#e2e8ee; --muted:#93a0ad; --line:#2a3542;
+  --accent:#7fb0ec; --accent-soft:#1a2c44; --chip:#202a35; --look:#e7c46f; --look-bg:#2b2615; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1220px;margin:0 auto;display:grid;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-size:1.9rem;margin:2px 0 0;text-wrap:balance}
+h2{font-size:1.05rem;margin:0}
+.sub{color:var(--muted);margin:4px 0 0;max-width:70ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+label.f{display:grid;gap:4px;font-size:.78rem;color:var(--muted);font-weight:500;flex:1 1 170px;min-width:0}
+input[type=text],input[type=date],select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+textarea{resize:vertical;min-height:40px;font-size:.85rem}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:600 .88rem var(--body);padding:9px 16px;border:0;background:var(--bg);color:var(--fg);cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--surface)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button.b{font:500 .86rem var(--body);padding:8px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+button.b.pri{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.b:hover{border-color:var(--accent)}
+.small{font-size:.78rem;color:var(--muted)}
+.chks{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.chk{display:flex;gap:6px;align-items:center;font-size:.86rem;cursor:pointer}
+.chk input{accent-color:var(--accent)}
+details.setup>summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:.9rem}
+.setupgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+/* rubric grid */
+.rubric{display:grid;grid-template-columns:170px repeat(4,minmax(0,1fr)) 84px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.rubric>div{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px 12px;min-width:0}
+.rubric>div:nth-child(6n){border-right:0}
+.rubric>div.last{border-bottom:0}
+.hd{background:var(--chip);font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.hd small{display:block;text-transform:none;letter-spacing:0;font-family:var(--body);font-size:.75rem}
+.crit{font-weight:600;font-size:.95rem;display:flex;flex-direction:column;gap:6px}
+.crit .num{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-weight:400}
+.look{font-weight:400;font-size:.78rem;background:var(--look-bg);color:var(--look);border-radius:6px;padding:6px 8px;white-space:pre-line}
+.look b{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase}
+.off{opacity:.38}
+.cell{cursor:pointer;font-size:.84rem;transition:background .12s;display:flex;flex-direction:column;gap:8px}
+.cell:hover{background:var(--accent-soft)}
+.cell.on{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.cell.zero{font-family:var(--mono);color:var(--muted);align-items:center;justify-content:center;font-size:.8rem;text-align:center}
+.off .cell,.cell.dis{cursor:default}
+.cell .tag{display:none}
+.picks{display:flex;gap:6px;margin-top:auto}
+.picks button{flex:1;font:600 .9rem var(--mono);padding:6px 0;border-radius:6px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer}
+.picks button.on{background:var(--accent);color:var(--surface)}
+.markcell{display:flex;align-items:center;justify-content:center;font:600 1.3rem var(--mono);font-variant-numeric:tabular-nums}
+.markcell small{font-size:.75rem;color:var(--muted);font-weight:400;margin-left:2px}
+@media (max-width:880px){
+  .rubric{grid-template-columns:1fr;border:0;background:none}
+  .rubric>.hd{display:none}
+  .rubric>div{border:1px solid var(--line);border-top:0;background:var(--surface)}
+  .rubric>div.crit{border-top:1px solid var(--line);border-radius:10px 10px 0 0;margin-top:14px;background:var(--chip)}
+  .rubric>div.markcell{border-radius:0 0 10px 10px;justify-content:flex-start;font-size:1rem}
+  .rubric>div.markcell::before{content:"Mark: ";font:500 .85rem var(--body);color:var(--muted);margin-right:6px}
+  .cell .tag{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .cell.zero{align-items:flex-start;text-align:left}
+}
+/* score */
+.score{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+@media (max-width:880px){.score{grid-template-columns:1fr}}
+.fbrow{display:grid;grid-template-columns:130px 1fr 1fr;gap:8px;align-items:start;margin-top:10px}
+.fbrow .lbl{font-weight:600;font-size:.85rem;padding-top:8px}
+@media (max-width:600px){.fbrow{grid-template-columns:1fr}.fbrow .lbl{padding-top:0}}
+.total{display:flex;align-items:baseline;gap:6px}
+.big{font:600 3.2rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.of{font-family:var(--mono);color:var(--muted)}
+.pct{font-family:var(--mono);color:var(--muted);font-size:.9rem;margin-top:4px}
+.mini{display:grid;gap:6px;margin:12px 0}
+.mini div{display:grid;grid-template-columns:110px 1fr 24px;gap:8px;align-items:center;font-size:.8rem}
+.track{height:8px;background:var(--chip);border-radius:4px;overflow:hidden}
+.fill{height:100%;background:var(--accent);transition:width .2s}
+.mini span:last-child{font-family:var(--mono);text-align:right}
+.toast{font-size:.8rem;color:var(--accent);min-height:1.2em;margin-top:6px}
+.rowhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right}td.n{font-family:var(--mono)}
+td button{font:inherit;font-size:.78rem;background:none;border:0;color:var(--accent);cursor:pointer;padding:0 4px}
+.sample{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;background:var(--chip);color:var(--muted);padding:2px 6px;border-radius:4px;margin-left:6px}
+.lang{font-size:.82rem;color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;float:right}
+.lang:hover{border-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.fill,.cell{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="lang" href="index.html" hreflang="en">English</a><div class="eyebrow">IB Chemie · Wissenschaftliche Untersuchung</div>
+    <h1>Bewertungsraster Laborprotokoll</h1>
+    <p class="sub">Ein Raster für jeden Versuch. Versuch wählen, je Kriterium die passende Stufe anklicken, dann die niedrigere Punktezahl (teilweise erfüllt) oder die höhere (vollständig erfüllt) wählen. Jedes Kriterium zählt 6 Punkte.</p>
+  </header>
+
+  <section class="panel" style="display:grid;gap:14px">
+    <div class="bar">
+      <label class="f" style="flex:2 1 240px">Versuch<select id="preset"></select></label>
+      <label class="f">Gruppe / Schüler:in<input type="text" id="group" placeholder="z. B. Gruppe 3 – Anna, Ben"></label>
+      <label class="f" style="flex:0 1 160px">Datum<input type="date" id="date"></label>
+      <div style="display:grid;gap:4px"><span class="small" style="font-weight:500">Raster</span>
+        <div class="seg" role="group" aria-label="Rasterstufe"><button type="button" data-level="basic">Basis</button><button type="button" data-level="expert">Expert</button></div></div>
+      <button class="b" id="newBtn" type="button">Nächste Abgabe</button>
+    </div>
+    <div class="chks"><span class="small" style="font-weight:500">Bewerten:</span><span id="scope" class="chks"></span></div>
+    <details class="setup" id="setup">
+      <summary>Versuche einrichten (Hinweise je Kriterium)</summary>
+      <p class="small" style="margin:8px 0 0">Die Hinweise erscheinen im Raster unter jedem Kriterium als Erinnerung, worauf bei diesem Versuch zu achten ist. Die Stufenbeschreibungen bleiben für jeden Versuch gleich.</p>
+      <div class="bar" style="margin-top:10px">
+        <label class="f" style="flex:2 1 260px">Name des Versuchs<input type="text" id="pname" placeholder="z. B. Titration von Essig mit NaOH"></label>
+        <div class="btns"><button class="b pri" id="psave" type="button">Versuch speichern</button><button class="b" id="pnew" type="button">Neuer Versuch</button><button class="b" id="pdel" type="button">Löschen</button></div>
+      </div>
+      <div class="setupgrid" id="looks"></div>
+    </details>
+  </section>
+
+  <div class="rubric" id="rubric"></div>
+
+  <section class="panel score">
+    <div><div class="rowhead"><h2>Rückmeldung</h2><span class="small">Wird in die kopierte Zusammenfassung übernommen</span></div><div id="fb"></div></div>
+    <div>
+      <div class="eyebrow">Punkte für diese Aufgabe</div>
+      <div class="total"><span class="big" id="pts">0</span><span class="of" id="ptsmax">/ 3</span></div>
+      <div class="pct">IB-Punkte: <span id="tot">0</span> <span id="max">/ 24</span> · <span id="pct">0 %</span></div>
+      <div class="bar" style="margin-top:10px;gap:8px">
+        <label class="f" style="flex:1 1 80px">Wert (Punkte)<input type="text" id="worth" inputmode="decimal" value="3"></label>
+        <label class="f" style="flex:1 1 120px">Runden auf<select id="round"><option value="1">ganze Punkte</option><option value="0.5">halbe Punkte</option><option value="0.1">0,1 Punkte</option></select></label>
+      </div>
+      <div class="mini" id="mini"></div>
+      <div class="btns"><button class="b pri" id="copyBtn" type="button">Zusammenfassung kopieren</button><button class="b" id="saveBtn" type="button">In Klassenliste speichern</button></div>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="rowhead"><h2>Klassenliste</h2>
+      <div class="btns"><label class="chk"><input type="checkbox" id="filter" checked> nur dieser Versuch</label><button class="b" id="csvBtn" type="button">Als Tabelle kopieren (CSV)</button><button class="b" id="clearBtn" type="button">Liste leeren</button></div></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Gruppe</th><th>Versuch</th><th>Datum</th><th>Raster</th><th class="n">FD</th><th class="n">DA</th><th class="n">SF</th><th class="n">Eval</th><th class="n">IB-Punkte</th><th class="n">Punkte</th><th></th></tr></thead>
+      <tbody id="list"></tbody></table></div>
+    <p class="small" style="margin:10px 0 0">Versuche und Ergebnisse werden nur in diesem Browser auf diesem Gerät gespeichert. Die Stufenbeschreibungen sind sinngemäß zusammengefasst; für die Moderation gelten die offiziellen Deskriptoren im IB <i>Chemistry Guide</i> (erste Prüfung 2025).</p>
+  </section>
+</div>
+
+<script>
+const CRIT=[{id:"rd",name:"Forschungsdesign"},{id:"da",name:"Datenanalyse"},{id:"co",name:"Schlussfolgerung"},{id:"ev",name:"Evaluation"}];
+const GRID={
+ basic:{heads:["Im Aufbau","Sicher","Ausgezeichnet"],
+  rd:["Keine klare Forschungsfrage. Der Ablauf hat Lücken oder falsche Reihenfolge und ist nicht wiederholbar. Variablen oder Sicherheit fehlen.",
+      "Die Forschungsfrage nennt, was verändert und gemessen wird. Ablauf vollständig und sinnvoll geordnet. Variablen genannt, teilweise begründet. Sicherheit erwähnt.",
+      "Klare, fokussierte Forschungsfrage. Ablauf vollständig und mit Mengenangaben wiederholbar. Variablen begründet kontrolliert. Konkrete Sicherheits- und Entsorgungshinweise. Beschriftete Skizze des Aufbaus."],
+  da:["Wenige Daten oder Beobachtungen, oder sie wiederholen nur den Ablauf. Einheiten fehlen.",
+      "Daten in einer Tabelle mit Einheiten. Berechnungen oder Beobachtungen großteils richtig. Diagramm oder Unsicherheiten teilweise fehlend.",
+      "Übersichtliche Tabellen mit Einheiten und Unsicherheiten. Richtige Berechnungen mit Rechenbeispiel. Gutes Diagramm, wo nötig. Genaue Beobachtungen."],
+  co:["Die Schlussfolgerung beantwortet die Frage nicht wirklich.",
+      "Beantwortet die Frage und passt zu den Daten. Kaum chemische Erklärung.",
+      "Beantwortet die Frage mit Daten als Beleg und erklärt das Ergebnis chemisch. Vergleich mit einem Literaturwert, wo möglich."],
+  ev:["Nur allgemeine Fehler wie „Messfehler“ oder „wir haben Fehler gemacht“.",
+      "Einige konkrete Schwächen und Verbesserungen, nicht immer passend zugeordnet.",
+      "Konkrete Schwächen, ihre Auswirkung auf das Ergebnis und je eine passende Verbesserung."]},
+ expert:{heads:["Stufe 1–2","Stufe 3–4","Stufe 5–6"],
+  rd:["Forschungsfrage vage oder unfokussiert. Methode unvollständig oder unklar und nicht reproduzierbar. Variablen nur aufgezählt, ohne wie oder warum sie kontrolliert werden. Sicherheit allgemein oder fehlend.",
+      "Fokussierte Forschungsfrage mit etwas Kontext. Methode großteils reproduzierbar. Einige methodische Entscheidungen erklärt, Begründung aber lückenhaft. Gefahren genannt.",
+      "Fokussierte Forschungsfrage in gut erklärtem chemischem Kontext. Methode vollständig reproduzierbar. Entscheidungen begründet: Variablen, Bereich, Anzahl der Durchgänge, Kontrollen, Geräte. Konkrete Sicherheits-, ethische und Umweltaspekte."],
+  da:["Rohdaten unvollständig oder schlecht dargestellt. Auswertung fehlt, ist ungeeignet oder hat grobe Fehler. Unsicherheiten ignoriert.",
+      "Daten erfasst und ausgewertet, aber mit Lücken: Einheiten, Unsicherheiten, Genauigkeit oder Diagramm uneinheitlich; Auswertung nur teilweise relevant.",
+      "Übersichtliche Rohdaten mit Einheiten, Unsicherheiten und einheitlicher Genauigkeit; qualitative Beobachtungen. Auswertung passend, korrekt und relevant, mit Rechenbeispielen und Fehlerfortpflanzung. Gut gestaltete Diagramme."],
+  co:["Eine Schlussfolgerung wird genannt, beantwortet aber die Forschungsfrage nicht klar oder wird von den Daten nicht gestützt.",
+      "Die Schlussfolgerung beantwortet die Forschungsfrage und passt zu den Daten; Begründung mit Chemie oder Literaturwerten ist begrenzt.",
+      "Die Schlussfolgerung beantwortet die Forschungsfrage direkt, wird von ausgewerteten Daten mit Unsicherheiten gestützt und mit chemischer Theorie und Literaturvergleich begründet (% Fehler vs. % Unsicherheit)."],
+  ev:["Schwächen allgemein („menschlicher Fehler“) oder nur aufgelistet. Verbesserungen vage oder fehlend.",
+      "Relevante Schwächen erkannt, ihre Auswirkung teilweise erklärt. Verbesserungen genannt, aber teils allgemein oder nicht zugeordnet.",
+      "Konkrete Schwächen erklärt, inkl. zufälliger vs. systematischer Fehler und ihrer Auswirkung auf das Ergebnis. Realistische Verbesserungen, jeweils direkt einer Schwäche zugeordnet."]}
+};
+const RANGE=[[0],[1,2],[3,4],[5,6]];
+const BUILTIN=[
+ {id:"generic",name:"Beliebiger Versuch (ohne Hinweise)",looks:{}},
+ {id:"sep",name:"Trennung von Salz, Sand und Wasser",looks:{
+   rd:"Reihenfolge: lösen → filtrieren → nachspülen → eindampfen → trocknen\nSicherheit: heiße Schale, spritzendes Salz, Brenner\nBeschriftete Skizze des Aufbaus",
+   da:"Beobachtung zu jedem Schritt: klares Filtrat, Sand im Filter, Kristallbildung, Spritzen\nReinheit und Trockenheit der Produkte beschrieben",
+   co:"Filtration ↔ Sand unlöslich, Salz löst sich\nEindampfen ↔ Wasser verdampft, Salz bleibt zurück\nFachbegriffe: Filtrat, Rückstand, Lösung",
+   ev:"Nasser Sand, Salz am Sand, Salzverlust durch Spritzen\nPassende Verbesserungen: nachspülen, schwach erhitzen, Sand im Ofen trocknen"}}
+];
+const LS="univ-grader-v1";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const bandOf=m=>m==null?null:m===0?0:m<=2?1:m<=4?2:3;
+const today=()=>new Date().toISOString().slice(0,10);
+function load(){try{return JSON.parse(localStorage.getItem(LS)||"{}")}catch(e){return{}}}
+function store(patch){try{const d=load();Object.assign(d,patch);localStorage.setItem(LS,JSON.stringify(d))}catch(e){}}
+let custom=load().custom||[];
+const presets=()=>BUILTIN.concat(custom);
+const presetById=id=>presets().find(p=>p.id===id)||BUILTIN[0];
+function blank(pid,level){return{preset:pid||"generic",group:"",date:today(),level:level||"basic",on:{rd:true,da:true,co:true,ev:true},marks:{rd:null,da:null,co:null,ev:null},sel:{},good:{},next:{}}}
+let S=blank();
+
+function renderPresets(){
+  $("preset").innerHTML=presets().map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+  $("preset").value=S.preset;
+  const p=presetById(S.preset),built=BUILTIN.some(b=>b.id===p.id);
+  $("pname").value=p.id==="generic"?"":p.name;
+  $("looks").innerHTML=CRIT.map(c=>`<label class="f">${c.name} – worauf achten<textarea id="look-${c.id}" rows="4" placeholder="Ein Punkt pro Zeile">${esc(p.looks[c.id])}</textarea></label>`).join("");
+  $("pdel").disabled=built;$("pdel").style.opacity=built?.4:1;
+  $("psave").textContent=built?"Als neuen Versuch speichern":"Versuch speichern";
+}
+function renderScope(){
+  $("scope").innerHTML=CRIT.map(c=>`<label class="chk"><input type="checkbox" data-on="${c.id}" ${S.on[c.id]?"checked":""}>${c.name}</label>`).join("");
+}
+function renderGrid(){
+  const g=GRID[S.level],p=presetById(S.preset);
+  let h=`<div class="hd">Kriterium</div><div class="hd">0<small>nichts Relevantes</small></div>${g.heads.map((t,i)=>`<div class="hd">${t}<small>${RANGE[i+1].join(" oder ")} Punkte</small></div>`).join("")}<div class="hd">Punkte</div>`;
+  CRIT.forEach((c,ri)=>{
+    const on=S.on[c.id],m=S.marks[c.id],sel=m!=null?bandOf(m):(S.sel[c.id]??null),last=ri===3?" last":"",off=on?"":" off";
+    h+=`<div class="crit${last}${off}"><span class="num">C${ri+1}${on?"":" · nicht bewertet"}</span>${c.name}${p.looks[c.id]?`<div class="look"><b>Worauf achten</b>${esc(p.looks[c.id])}</div>`:""}</div>`;
+    h+=`<div class="cell zero${sel===0&&on?" on":""}${last}${off}" data-c="${c.id}" data-b="0" ${on?'tabindex="0" role="button"':""}><span class="tag">0</span>Nichts Relevantes · 0</div>`;
+    [1,2,3].forEach(b=>{
+      h+=`<div class="cell${sel===b&&on?" on":""}${last}${off}" data-c="${c.id}" data-b="${b}" ${on?`tabindex="0" role="button" aria-pressed="${sel===b}"`:""}><span class="tag">${g.heads[b-1]} · ${RANGE[b].join("–")}</span><span>${g[c.id][b-1]}</span>
+      ${sel===b&&on?`<div class="picks">${RANGE[b].map((n,j)=>`<button type="button" data-c="${c.id}" data-m="${n}" class="${m===n?"on":""}" title="${j?"vollständig erfüllt":"teilweise erfüllt"}">${n}</button>`).join("")}</div>`:""}</div>`});
+    h+=`<div class="markcell${last}${off}">${on?(m??"–"):"—"}<small>/6</small></div>`;
+  });
+  $("rubric").innerHTML=h;
+  document.querySelectorAll("[data-level]").forEach(b=>b.classList.toggle("on",b.dataset.level===S.level));
+  renderTotals();
+}
+function renderFb(){
+  $("fb").innerHTML=CRIT.filter(c=>S.on[c.id]).map(c=>`<div class="fbrow"><span class="lbl">${c.name}</span>
+    <textarea id="good-${c.id}" placeholder="Gut gemacht …">${esc(S.good[c.id])}</textarea>
+    <textarea id="next-${c.id}" placeholder="Nächster Schritt …">${esc(S.next[c.id])}</textarea></div>`).join("");
+}
+let CFG=Object.assign({worth:3,round:0.5},load().cfg||{});
+const fmt=n=>(Math.round(n*10)/10).toLocaleString("de-AT");
+function totals(){let t=0,mx=0;CRIT.forEach(c=>{if(S.on[c.id]){mx+=6;t+=S.marks[c.id]??0}});
+  const raw=mx?t/mx*CFG.worth:0,r=CFG.round,pts=Math.round(raw/r)*r;
+  return{t,mx,pct:mx?Math.round(t/mx*100):0,pts:Math.round(pts*10)/10,worth:CFG.worth}}
+function renderTotals(){
+  const T=totals();$("tot").textContent=T.t;$("max").textContent="/ "+T.mx;$("pct").textContent=T.pct+" %";
+  $("pts").textContent=fmt(T.pts);$("ptsmax").textContent="/ "+fmt(T.worth);
+  $("mini").innerHTML=CRIT.map(c=>{const on=S.on[c.id],m=S.marks[c.id];return `<div class="${on?"":"off"}"><span>${c.name}</span><div class="track"><div class="fill" style="width:${on?(m??0)/6*100:0}%"></div></div><span>${on?(m??"–"):"—"}</span></div>`}).join("");
+  store({draft:S});
+}
+function getList(){return load().list||[]}
+function renderList(){
+  const all=getList(),f=$("filter").checked;
+  const rows=all.map((r,i)=>({r,i})).filter(x=>!f||x.r.S.preset===S.preset);
+  $("list").innerHTML=rows.length?rows.map(({r,i})=>`<tr><td>${esc(r.S.group)}${r.sample?'<span class="sample">Beispiel</span>':""}</td><td>${esc(presetById(r.S.preset).name)}</td><td>${esc(r.S.date)}</td><td>${r.S.level==="basic"?"Basis":"Expert"}</td>
+    ${CRIT.map(c=>`<td class="n">${r.S.on[c.id]?(r.S.marks[c.id]??"–"):"—"}</td>`).join("")}<td class="n">${r.t}/${r.mx}</td><td class="n"><b>${fmt(r.pts??0)}</b>/${fmt(r.worth??3)}</td>
+    <td><button type="button" data-open="${i}">Öffnen</button><button type="button" data-del="${i}">Entfernen</button></td></tr>`).join("")
+    :`<tr><td colspan="11" class="small">Noch keine gespeicherten Ergebnisse${f?" für diesen Versuch":""}. Ein Protokoll bewerten und „In Klassenliste speichern“ drücken.</td></tr>`;
+}
+function summary(){
+  const T=totals(),p=presetById(S.preset);
+  const L=[`${p.id==="generic"?"Laborprotokoll":p.name} – ${S.group||"Schüler:in"} (${S.date})`,`Punkte: ${fmt(T.pts)} / ${fmt(T.worth)}`,`Raster: ${S.level==="basic"?"Basis":"Expert"} · IB-Punkte: ${T.t} / ${T.mx} (${T.pct} %)`];
+  CRIT.forEach(c=>{if(!S.on[c.id])return;const m=S.marks[c.id];
+    L.push("",`${c.name}: ${m??"–"} / 6${m&&S.level==="basic"?" ("+GRID.basic.heads[bandOf(m)-1]+")":""}`);
+    if(S.good[c.id])L.push("  Gut gemacht: "+S.good[c.id].trim());
+    if(S.next[c.id])L.push("  Nächster Schritt: "+S.next[c.id].trim())});
+  return L.join("\n");
+}
+function toast(t){$("toast").textContent=t;clearTimeout(toast.h);toast.h=setTimeout(()=>$("toast").textContent="",2500)}
+function copy(txt,ok){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast(ok),()=>toast("Kopieren vom Browser blockiert"));else toast("Kopieren vom Browser blockiert")}
+function sync(){$("group").value=S.group;$("date").value=S.date;renderPresets();renderScope();renderFb();renderGrid();renderList()}
+
+function pickBand(c,b){if(!S.on[c])return;S.sel[c]=b;const cur=bandOf(S.marks[c]);if(b===0)S.marks[c]=0;else if(cur!==b)S.marks[c]=null;renderGrid()}
+$("rubric").addEventListener("click",e=>{
+  const mb=e.target.closest("[data-m]");if(mb){const c=mb.dataset.c,m=+mb.dataset.m;S.marks[c]=S.marks[c]===m?null:m;renderGrid();return}
+  const cell=e.target.closest(".cell");if(cell)pickBand(cell.dataset.c,+cell.dataset.b)});
+$("rubric").addEventListener("keydown",e=>{const cell=e.target.closest(".cell");if(cell&&e.target===cell&&(e.key==="Enter"||e.key===" ")){e.preventDefault();pickBand(cell.dataset.c,+cell.dataset.b)}});
+document.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{S.level=b.dataset.level;renderGrid()});
+$("scope").addEventListener("change",e=>{const c=e.target.dataset.on;if(!c)return;
+  if(!e.target.checked&&CRIT.filter(x=>S.on[x.id]).length===1){e.target.checked=true;toast("Mindestens ein Kriterium bewerten");return}
+  S.on[c]=e.target.checked;renderFb();renderGrid()});
+$("preset").onchange=e=>{S.preset=e.target.value;renderPresets();renderGrid();renderList()};
+$("filter").onchange=renderList;
+$("round").onchange=e=>{CFG.round=+e.target.value;store({cfg:CFG});renderTotals()};
+$("worth").addEventListener("change",e=>{const v=parseFloat(String(e.target.value).replace(",","."));
+  if(!(v>0)){e.target.value=fmt(CFG.worth);toast("Bitte eine Punktezahl über 0 eingeben");return}
+  CFG.worth=v;e.target.value=fmt(v);store({cfg:CFG});renderTotals()});
+document.addEventListener("input",e=>{const t=e.target;
+  if(t.id==="group"||t.id==="date"){S[t.id]=t.value;store({draft:S})}
+  else if(t.id.startsWith("good-")){S.good[t.id.slice(5)]=t.value;store({draft:S})}
+  else if(t.id.startsWith("next-")){S.next[t.id.slice(5)]=t.value;store({draft:S})}});
+$("psave").onclick=()=>{
+  const name=$("pname").value.trim();if(!name){toast("Bitte dem Versuch einen Namen geben");$("pname").focus();return}
+  const looks={};CRIT.forEach(c=>{const v=$("look-"+c.id).value.trim();if(v)looks[c.id]=v});
+  const cur=presetById(S.preset),built=BUILTIN.some(b=>b.id===cur.id);
+  if(built){const p={id:"p"+Date.now(),name,looks};custom.push(p);S.preset=p.id}
+  else{Object.assign(custom.find(p=>p.id===cur.id),{name,looks})}
+  store({custom});renderPresets();renderGrid();renderList();toast("Versuch gespeichert")};
+$("pnew").onclick=()=>{S.preset="generic";renderPresets();$("pname").value="";$("pname").focus();renderGrid();renderList()};
+$("pdel").onclick=function(){
+  if(BUILTIN.some(b=>b.id===S.preset))return;
+  if(!this.dataset.arm){this.dataset.arm=1;this.textContent="Zum Löschen nochmals klicken";setTimeout(()=>{this.textContent="Löschen";delete this.dataset.arm},3000);return}
+  custom=custom.filter(p=>p.id!==S.preset);store({custom});S.preset="generic";this.textContent="Löschen";delete this.dataset.arm;renderPresets();renderGrid();renderList();toast("Versuch gelöscht")};
+$("copyBtn").onclick=()=>copy(summary(),"Zusammenfassung kopiert");
+$("saveBtn").onclick=()=>{
+  if(!S.group.trim()){toast("Zuerst Gruppe oder Namen eintragen");$("group").focus();return}
+  const T=totals(),l=getList().filter(r=>!r.sample),rec={S:JSON.parse(JSON.stringify(S)),...T};
+  const i=l.findIndex(r=>r.S.group===S.group&&r.S.date===S.date&&r.S.preset===S.preset);if(i>=0)l[i]=rec;else l.push(rec);
+  store({list:l});renderList();toast("In Klassenliste gespeichert")};
+$("newBtn").onclick=()=>{const n=blank(S.preset,S.level);n.on={...S.on};n.date=S.date;S=n;sync();$("group").focus()};
+$("list").addEventListener("click",e=>{
+  if(e.target.dataset.open!=null){S=Object.assign(blank(),JSON.parse(JSON.stringify(getList()[+e.target.dataset.open].S)));sync();window.scrollTo({top:0});toast("Geladen: "+S.group)}
+  if(e.target.dataset.del!=null){const l=getList();l.splice(+e.target.dataset.del,1);store({list:l});renderList()}});
+$("clearBtn").onclick=function(){
+  if(this.dataset.arm){store({list:[]});renderList();this.textContent="Liste leeren";delete this.dataset.arm;return}
+  this.dataset.arm=1;this.textContent="Zum Leeren nochmals klicken";setTimeout(()=>{this.textContent="Liste leeren";delete this.dataset.arm},3000)};
+$("csvBtn").onclick=()=>{
+  const q=s=>`"${String(s??"").replace(/"/g,'""')}"`,f=$("filter").checked;
+  const rows=[["Gruppe","Versuch","Datum","Raster",...CRIT.map(c=>c.name),"IB-Punkte","IB max","Prozent","Punkte","Punkte max"].map(q).join(",")]
+   .concat(getList().filter(r=>!f||r.S.preset===S.preset).map(r=>[r.S.group,presetById(r.S.preset).name,r.S.date,r.S.level,...CRIT.map(c=>r.S.on[c.id]?(r.S.marks[c.id]??""):""),r.t,r.mx,r.pct,fmt(r.pts??0),fmt(r.worth??3)].map(q).join(",")));
+  copy(rows.join("\n"),"Tabelle kopiert – in Excel einfügen")};
+
+(function boot(){
+  const d=load();
+  if(d.draft){S=Object.assign(blank(),d.draft);if(!presets().some(p=>p.id===S.preset))S.preset="generic"}
+  else{
+    S=Object.assign(blank("sep","basic"),{group:"Beispielgruppe",marks:{rd:4,da:3,co:5,ev:2},
+      good:{rd:"Plan in sinnvoller Reihenfolge mit beschrifteter Skizze.",co:"Klarer Zusammenhang zwischen Löslichkeit und Filtration."},
+      next:{da:"Beschreibe bei jedem Schritt, was du gesehen hast, nicht was du getan hast.",ev:"Nenne ein konkretes Problem, z. B. dass der Sand noch nass war, und wie du es behebst."}});
+    if(!d.list)store({list:[{sample:true,S:JSON.parse(JSON.stringify(S)),...totals()}]});
+  }
+  $("worth").value=fmt(CFG.worth);$("round").value=String(CFG.round);
+  sync();
+})();
+</script>
+
+</body>
+</html>
