@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab Report Marking Grid</title>
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600&display=swap">
+<style>
+/* Layout: practical + group bar, setup drawer for look-for points, clickable rubric grid (criteria × bands), score + feedback strip, class list */
+:root{
+  --bg:#f2f4f6; --surface:#ffffff; --fg:#1b232b; --muted:#5d6975; --line:#d5dce3;
+  --accent:#24589a; --accent-soft:#e0e9f5; --chip:#ecf0f4; --look:#7a5a12; --look-bg:#fbf4e2;
+  --display:"IBM Plex Serif",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --surface:#18202a; --fg:#e2e8ee; --muted:#93a0ad; --line:#2a3542;
+  --accent:#7fb0ec; --accent-soft:#1a2c44; --chip:#202a35; --look:#e7c46f; --look-bg:#2b2615; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --surface:#18202a; --fg:#e2e8ee; --muted:#93a0ad; --line:#2a3542;
+  --accent:#7fb0ec; --accent-soft:#1a2c44; --chip:#202a35; --look:#e7c46f; --look-bg:#2b2615; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1220px;margin:0 auto;display:grid;gap:18px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-size:1.9rem;margin:2px 0 0;text-wrap:balance}
+h2{font-size:1.05rem;margin:0}
+.sub{color:var(--muted);margin:4px 0 0;max-width:70ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+label.f{display:grid;gap:4px;font-size:.78rem;color:var(--muted);font-weight:500;flex:1 1 170px;min-width:0}
+input[type=text],input[type=date],select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+textarea{resize:vertical;min-height:40px;font-size:.85rem}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:600 .88rem var(--body);padding:9px 16px;border:0;background:var(--bg);color:var(--fg);cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--surface)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button.b{font:500 .86rem var(--body);padding:8px 12px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+button.b.pri{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.b:hover{border-color:var(--accent)}
+.small{font-size:.78rem;color:var(--muted)}
+.chks{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.chk{display:flex;gap:6px;align-items:center;font-size:.86rem;cursor:pointer}
+.chk input{accent-color:var(--accent)}
+details.setup>summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:.9rem}
+.setupgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+/* rubric grid */
+.rubric{display:grid;grid-template-columns:170px repeat(4,minmax(0,1fr)) 84px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.rubric>div{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px 12px;min-width:0}
+.rubric>div:nth-child(6n){border-right:0}
+.rubric>div.last{border-bottom:0}
+.hd{background:var(--chip);font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.hd small{display:block;text-transform:none;letter-spacing:0;font-family:var(--body);font-size:.75rem}
+.crit{font-weight:600;font-size:.95rem;display:flex;flex-direction:column;gap:6px}
+.crit .num{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-weight:400}
+.look{font-weight:400;font-size:.78rem;background:var(--look-bg);color:var(--look);border-radius:6px;padding:6px 8px;white-space:pre-line}
+.look b{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase}
+.off{opacity:.38}
+.cell{cursor:pointer;font-size:.84rem;transition:background .12s;display:flex;flex-direction:column;gap:8px}
+.cell:hover{background:var(--accent-soft)}
+.cell.on{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.cell.zero{font-family:var(--mono);color:var(--muted);align-items:center;justify-content:center;font-size:.8rem;text-align:center}
+.off .cell,.cell.dis{cursor:default}
+.cell .tag{display:none}
+.picks{display:flex;gap:6px;margin-top:auto}
+.picks button{flex:1;font:600 .9rem var(--mono);padding:6px 0;border-radius:6px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer}
+.picks button.on{background:var(--accent);color:var(--surface)}
+.markcell{display:flex;align-items:center;justify-content:center;font:600 1.3rem var(--mono);font-variant-numeric:tabular-nums}
+.markcell small{font-size:.75rem;color:var(--muted);font-weight:400;margin-left:2px}
+@media (max-width:880px){
+  .rubric{grid-template-columns:1fr;border:0;background:none}
+  .rubric>.hd{display:none}
+  .rubric>div{border:1px solid var(--line);border-top:0;background:var(--surface)}
+  .rubric>div.crit{border-top:1px solid var(--line);border-radius:10px 10px 0 0;margin-top:14px;background:var(--chip)}
+  .rubric>div.markcell{border-radius:0 0 10px 10px;justify-content:flex-start;font-size:1rem}
+  .rubric>div.markcell::before{content:"Mark: ";font:500 .85rem var(--body);color:var(--muted);margin-right:6px}
+  .cell .tag{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .cell.zero{align-items:flex-start;text-align:left}
+}
+/* score */
+.score{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+@media (max-width:880px){.score{grid-template-columns:1fr}}
+.fbrow{display:grid;grid-template-columns:130px 1fr 1fr;gap:8px;align-items:start;margin-top:10px}
+.fbrow .lbl{font-weight:600;font-size:.85rem;padding-top:8px}
+@media (max-width:600px){.fbrow{grid-template-columns:1fr}.fbrow .lbl{padding-top:0}}
+.total{display:flex;align-items:baseline;gap:6px}
+.big{font:600 3.2rem/1 var(--mono);font-variant-numeric:tabular-nums}
+.of{font-family:var(--mono);color:var(--muted)}
+.pct{font-family:var(--mono);color:var(--muted);font-size:.9rem;margin-top:4px}
+.mini{display:grid;gap:6px;margin:12px 0}
+.mini div{display:grid;grid-template-columns:110px 1fr 24px;gap:8px;align-items:center;font-size:.8rem}
+.track{height:8px;background:var(--chip);border-radius:4px;overflow:hidden}
+.fill{height:100%;background:var(--accent);transition:width .2s}
+.mini span:last-child{font-family:var(--mono);text-align:right}
+.toast{font-size:.8rem;color:var(--accent);min-height:1.2em;margin-top:6px}
+.rowhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right}td.n{font-family:var(--mono)}
+td button{font:inherit;font-size:.78rem;background:none;border:0;color:var(--accent);cursor:pointer;padding:0 4px}
+.sample{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;background:var(--chip);color:var(--muted);padding:2px 6px;border-radius:4px;margin-left:6px}
+@media (prefers-reduced-motion:reduce){.fill,.cell{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">IB Chemistry · Scientific investigation</div>
+    <h1>Lab Report Marking Grid</h1>
+    <p class="sub">One grid for every practical. Choose the practical, click the band that fits each criterion, then pick the lower mark (partly meets) or the higher mark (fully meets). Each criterion is worth 6 marks.</p>
+  </header>
+
+  <section class="panel" style="display:grid;gap:14px">
+    <div class="bar">
+      <label class="f" style="flex:2 1 240px">Practical<select id="preset"></select></label>
+      <label class="f">Group / student<input type="text" id="group" placeholder="e.g. Group 3 – Anna, Ben"></label>
+      <label class="f" style="flex:0 1 160px">Date<input type="date" id="date"></label>
+      <div style="display:grid;gap:4px"><span class="small" style="font-weight:500">Grid</span>
+        <div class="seg" role="group" aria-label="Grid level"><button type="button" data-level="basic">Basic</button><button type="button" data-level="expert">Expert</button></div></div>
+      <button class="b" id="newBtn" type="button">Next student</button>
+    </div>
+    <div class="chks"><span class="small" style="font-weight:500">Assess:</span><span id="scope" class="chks"></span></div>
+    <details class="setup" id="setup">
+      <summary>Set up practicals (look-for points per criterion)</summary>
+      <p class="small" style="margin:8px 0 0">Look-for points appear in the grid under each criterion as a reminder of what this specific practical needs. The band descriptors stay the same for every lab.</p>
+      <div class="bar" style="margin-top:10px">
+        <label class="f" style="flex:2 1 260px">Practical name<input type="text" id="pname" placeholder="e.g. Titration of vinegar with NaOH"></label>
+        <div class="btns"><button class="b pri" id="psave" type="button">Save practical</button><button class="b" id="pnew" type="button">New practical</button><button class="b" id="pdel" type="button">Delete</button></div>
+      </div>
+      <div class="setupgrid" id="looks"></div>
+    </details>
+  </section>
+
+  <div class="rubric" id="rubric"></div>
+
+  <section class="panel score">
+    <div><div class="rowhead"><h2>Feedback</h2><span class="small">Included in the copied summary</span></div><div id="fb"></div></div>
+    <div>
+      <div class="eyebrow">Points for this assignment</div>
+      <div class="total"><span class="big" id="pts">0</span><span class="of" id="ptsmax">/ 3</span></div>
+      <div class="pct">IB marks: <span id="tot">0</span> <span id="max">/ 24</span> · <span id="pct">0 %</span></div>
+      <div class="bar" style="margin-top:10px;gap:8px">
+        <label class="f" style="flex:1 1 80px">Worth (points)<input type="text" id="worth" inputmode="decimal" value="3"></label>
+        <label class="f" style="flex:1 1 120px">Round to<select id="round"><option value="1">whole points</option><option value="0.5">half points</option><option value="0.1">0.1 points</option></select></label>
+      </div>
+      <div class="mini" id="mini"></div>
+      <div class="btns"><button class="b pri" id="copyBtn" type="button">Copy summary</button><button class="b" id="saveBtn" type="button">Save to class list</button></div>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="rowhead"><h2>Class list</h2>
+      <div class="btns"><label class="chk"><input type="checkbox" id="filter" checked> only this practical</label><button class="b" id="csvBtn" type="button">Copy as table (CSV)</button><button class="b" id="clearBtn" type="button">Clear list</button></div></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Group</th><th>Practical</th><th>Date</th><th>Grid</th><th class="n">RD</th><th class="n">DA</th><th class="n">Con</th><th class="n">Eval</th><th class="n">IB marks</th><th class="n">Points</th><th></th></tr></thead>
+      <tbody id="list"></tbody></table></div>
+    <p class="small" style="margin:10px 0 0">Practicals and results are saved only in this browser on this device. Band descriptors are paraphrased; for moderation use the official descriptors in the IB <i>Chemistry Guide</i> (first assessment 2025).</p>
+  </section>
+</div>
+
+<script>
+const CRIT=[{id:"rd",name:"Research design"},{id:"da",name:"Data analysis"},{id:"co",name:"Conclusion"},{id:"ev",name:"Evaluation"}];
+const GRID={
+ basic:{heads:["Developing","Secure","Excellent"],
+  rd:["No clear research question. Method has gaps or steps in the wrong order, so it cannot be repeated. Variables or safety missing.",
+      "Research question says what is changed and measured. Method is complete and in a sensible order. Variables listed; some reasons given. Safety mentioned.",
+      "Clear, focused research question. Method complete and repeatable with amounts. Variables controlled with reasons. Specific safety and disposal. Labelled set-up sketch."],
+  da:["Few data or observations, or they repeat the method. Units missing.",
+      "Data in a table with units. Calculations or observations mostly correct. Graph or uncertainties partly missing.",
+      "Clear tables with units and uncertainties. Correct, worked calculations. Good graph where needed. Detailed observations."],
+  co:["Conclusion does not really answer the question.",
+      "Answers the question and fits the data. Little chemistry explanation.",
+      "Answers the question with data as evidence and explains it with chemistry. Compares with a literature value where possible."],
+  ev:["Only general errors like “human error” or “we made mistakes”.",
+      "Some specific weaknesses and improvements, not always linked.",
+      "Specific weaknesses, how they affected the result, and a matching improvement for each."]},
+ expert:{heads:["Band 1–2","Band 3–4","Band 5–6"],
+  rd:["Research question vague or unfocused. Method incomplete or unclear and cannot be reproduced. Variables listed without how or why they are controlled. Safety generic or absent.",
+      "Focused research question with some context. Method mostly reproducible. Some methodological choices explained, but justification partial or uneven. Hazards named.",
+      "Focused research question in a well-explained chemical context. Method fully reproducible. Choices justified: variables, range, number of trials, controls, equipment. Specific safety, ethical and environmental considerations."],
+  da:["Raw data incomplete or poorly presented. Processing missing, inappropriate or with major errors. Uncertainties ignored.",
+      "Data recorded and processed with some gaps: units, uncertainties, precision or graph presentation inconsistent; processing partly relevant.",
+      "Clear raw data with units, uncertainties and consistent precision; qualitative observations. Processing appropriate, accurate and relevant, with worked examples and propagated uncertainties. Well-presented graphs."],
+  co:["A conclusion is stated but does not clearly answer the research question or is not supported by the data.",
+      "Conclusion answers the research question and is consistent with the data; justification with chemistry or accepted values is limited.",
+      "Conclusion directly answers the research question, is supported by processed data with uncertainties, and is justified with chemical theory and comparison to literature values (% error vs. % uncertainty)."],
+  ev:["Weaknesses generic (“human error”) or merely listed. Improvements vague or missing.",
+      "Relevant weaknesses identified with some explanation of their effect. Improvements given but partly generic or not linked.",
+      "Specific weaknesses explained, incl. random vs. systematic error and their effect on the result. Realistic improvements directly linked to each weakness."]}
+};
+const RANGE=[[0],[1,2],[3,4],[5,6]];
+const BUILTIN=[
+ {id:"generic",name:"Any practical (no look-for points)",looks:{}},
+ {id:"sep",name:"Separating salt, sand and water",looks:{
+   rd:"Order: dissolve → filter → rinse → evaporate → dry\nSafety: hot dish, spitting salt, burner\nLabelled set-up sketch",
+   da:"Observation for every step: filtrate clear, sand in filter, crystals forming, spitting\nPurity and dryness of products described",
+   co:"Filtration ↔ sand insoluble, salt dissolves\nEvaporation ↔ water evaporates, salt remains\nTerms: filtrate, residue, solution",
+   ev:"Wet sand, salt left on sand, salt lost by spitting\nMatching fixes: rinse, heat gently, dry in oven"}}
+];
+const LS="univ-grader-v1";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const bandOf=m=>m==null?null:m===0?0:m<=2?1:m<=4?2:3;
+const today=()=>new Date().toISOString().slice(0,10);
+function load(){try{return JSON.parse(localStorage.getItem(LS)||"{}")}catch(e){return{}}}
+function store(patch){try{const d=load();Object.assign(d,patch);localStorage.setItem(LS,JSON.stringify(d))}catch(e){}}
+let custom=load().custom||[];
+const presets=()=>BUILTIN.concat(custom);
+const presetById=id=>presets().find(p=>p.id===id)||BUILTIN[0];
+function blank(pid,level){return{preset:pid||"generic",group:"",date:today(),level:level||"basic",on:{rd:true,da:true,co:true,ev:true},marks:{rd:null,da:null,co:null,ev:null},sel:{},good:{},next:{}}}
+let S=blank();
+
+function renderPresets(){
+  $("preset").innerHTML=presets().map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+  $("preset").value=S.preset;
+  const p=presetById(S.preset),built=BUILTIN.some(b=>b.id===p.id);
+  $("pname").value=p.id==="generic"?"":p.name;
+  $("looks").innerHTML=CRIT.map(c=>`<label class="f">${c.name} – look for<textarea id="look-${c.id}" rows="4" placeholder="One point per line">${esc(p.looks[c.id])}</textarea></label>`).join("");
+  $("pdel").disabled=built;$("pdel").style.opacity=built?.4:1;
+  $("psave").textContent=built?"Save as new practical":"Save practical";
+}
+function renderScope(){
+  $("scope").innerHTML=CRIT.map(c=>`<label class="chk"><input type="checkbox" data-on="${c.id}" ${S.on[c.id]?"checked":""}>${c.name}</label>`).join("");
+}
+function renderGrid(){
+  const g=GRID[S.level],p=presetById(S.preset);
+  let h=`<div class="hd">Criterion</div><div class="hd">0<small>nothing relevant</small></div>${g.heads.map((t,i)=>`<div class="hd">${t}<small>${RANGE[i+1].join(" or ")} marks</small></div>`).join("")}<div class="hd">Mark</div>`;
+  CRIT.forEach((c,ri)=>{
+    const on=S.on[c.id],m=S.marks[c.id],sel=m!=null?bandOf(m):(S.sel[c.id]??null),last=ri===3?" last":"",off=on?"":" off";
+    h+=`<div class="crit${last}${off}"><span class="num">C${ri+1}${on?"":" · not assessed"}</span>${c.name}${p.looks[c.id]?`<div class="look"><b>Look for</b>${esc(p.looks[c.id])}</div>`:""}</div>`;
+    h+=`<div class="cell zero${sel===0&&on?" on":""}${last}${off}" data-c="${c.id}" data-b="0" ${on?'tabindex="0" role="button"':""}><span class="tag">0</span>Nothing relevant · 0</div>`;
+    [1,2,3].forEach(b=>{
+      h+=`<div class="cell${sel===b&&on?" on":""}${last}${off}" data-c="${c.id}" data-b="${b}" ${on?`tabindex="0" role="button" aria-pressed="${sel===b}"`:""}><span class="tag">${g.heads[b-1]} · ${RANGE[b].join("–")}</span><span>${g[c.id][b-1]}</span>
+      ${sel===b&&on?`<div class="picks">${RANGE[b].map((n,j)=>`<button type="button" data-c="${c.id}" data-m="${n}" class="${m===n?"on":""}" title="${j?"fully meets":"partly meets"}">${n}</button>`).join("")}</div>`:""}</div>`});
+    h+=`<div class="markcell${last}${off}">${on?(m??"–"):"—"}<small>/6</small></div>`;
+  });
+  $("rubric").innerHTML=h;
+  document.querySelectorAll("[data-level]").forEach(b=>b.classList.toggle("on",b.dataset.level===S.level));
+  renderTotals();
+}
+function renderFb(){
+  $("fb").innerHTML=CRIT.filter(c=>S.on[c.id]).map(c=>`<div class="fbrow"><span class="lbl">${c.name}</span>
+    <textarea id="good-${c.id}" placeholder="Well done …">${esc(S.good[c.id])}</textarea>
+    <textarea id="next-${c.id}" placeholder="Next step …">${esc(S.next[c.id])}</textarea></div>`).join("");
+}
+let CFG=Object.assign({worth:3,round:0.5},load().cfg||{});
+const fmt=n=>(Math.round(n*10)/10).toLocaleString("de-AT");
+function totals(){let t=0,mx=0;CRIT.forEach(c=>{if(S.on[c.id]){mx+=6;t+=S.marks[c.id]??0}});
+  const raw=mx?t/mx*CFG.worth:0,r=CFG.round,pts=Math.round(raw/r)*r;
+  return{t,mx,pct:mx?Math.round(t/mx*100):0,pts:Math.round(pts*10)/10,worth:CFG.worth}}
+function renderTotals(){
+  const T=totals();$("tot").textContent=T.t;$("max").textContent="/ "+T.mx;$("pct").textContent=T.pct+" %";
+  $("pts").textContent=fmt(T.pts);$("ptsmax").textContent="/ "+fmt(T.worth);
+  $("mini").innerHTML=CRIT.map(c=>{const on=S.on[c.id],m=S.marks[c.id];return `<div class="${on?"":"off"}"><span>${c.name}</span><div class="track"><div class="fill" style="width:${on?(m??0)/6*100:0}%"></div></div><span>${on?(m??"–"):"—"}</span></div>`}).join("");
+  store({draft:S});
+}
+function getList(){return load().list||[]}
+function renderList(){
+  const all=getList(),f=$("filter").checked;
+  const rows=all.map((r,i)=>({r,i})).filter(x=>!f||x.r.S.preset===S.preset);
+  $("list").innerHTML=rows.length?rows.map(({r,i})=>`<tr><td>${esc(r.S.group)}${r.sample?'<span class="sample">example</span>':""}</td><td>${esc(presetById(r.S.preset).name)}</td><td>${esc(r.S.date)}</td><td>${r.S.level==="basic"?"Basic":"Expert"}</td>
+    ${CRIT.map(c=>`<td class="n">${r.S.on[c.id]?(r.S.marks[c.id]??"–"):"—"}</td>`).join("")}<td class="n">${r.t}/${r.mx}</td><td class="n"><b>${fmt(r.pts??0)}</b>/${fmt(r.worth??3)}</td>
+    <td><button type="button" data-open="${i}">Open</button><button type="button" data-del="${i}">Remove</button></td></tr>`).join("")
+    :`<tr><td colspan="11" class="small">No saved results${f?" for this practical":""} yet. Grade a report and press “Save to class list”.</td></tr>`;
+}
+function summary(){
+  const T=totals(),p=presetById(S.preset);
+  const L=[`${p.id==="generic"?"Lab report":p.name} – ${S.group||"Student"} (${S.date})`,`Points: ${fmt(T.pts)} / ${fmt(T.worth)}`,`Grid: ${S.level==="basic"?"Basic":"Expert"} · IB marks: ${T.t} / ${T.mx} (${T.pct} %)`];
+  CRIT.forEach(c=>{if(!S.on[c.id])return;const m=S.marks[c.id];
+    L.push("",`${c.name}: ${m??"–"} / 6${m&&S.level==="basic"?" ("+GRID.basic.heads[bandOf(m)-1]+")":""}`);
+    if(S.good[c.id])L.push("  Well done: "+S.good[c.id].trim());
+    if(S.next[c.id])L.push("  Next step: "+S.next[c.id].trim())});
+  return L.join("\n");
+}
+function toast(t){$("toast").textContent=t;clearTimeout(toast.h);toast.h=setTimeout(()=>$("toast").textContent="",2500)}
+function copy(txt,ok){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast(ok),()=>toast("Copy blocked by the browser"));else toast("Copy blocked by the browser")}
+function sync(){$("group").value=S.group;$("date").value=S.date;renderPresets();renderScope();renderFb();renderGrid();renderList()}
+
+function pickBand(c,b){if(!S.on[c])return;S.sel[c]=b;const cur=bandOf(S.marks[c]);if(b===0)S.marks[c]=0;else if(cur!==b)S.marks[c]=null;renderGrid()}
+$("rubric").addEventListener("click",e=>{
+  const mb=e.target.closest("[data-m]");if(mb){const c=mb.dataset.c,m=+mb.dataset.m;S.marks[c]=S.marks[c]===m?null:m;renderGrid();return}
+  const cell=e.target.closest(".cell");if(cell)pickBand(cell.dataset.c,+cell.dataset.b)});
+$("rubric").addEventListener("keydown",e=>{const cell=e.target.closest(".cell");if(cell&&e.target===cell&&(e.key==="Enter"||e.key===" ")){e.preventDefault();pickBand(cell.dataset.c,+cell.dataset.b)}});
+document.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{S.level=b.dataset.level;renderGrid()});
+$("scope").addEventListener("change",e=>{const c=e.target.dataset.on;if(!c)return;
+  if(!e.target.checked&&CRIT.filter(x=>S.on[x.id]).length===1){e.target.checked=true;toast("Assess at least one criterion");return}
+  S.on[c]=e.target.checked;renderFb();renderGrid()});
+$("preset").onchange=e=>{S.preset=e.target.value;renderPresets();renderGrid();renderList()};
+$("filter").onchange=renderList;
+$("round").onchange=e=>{CFG.round=+e.target.value;store({cfg:CFG});renderTotals()};
+$("worth").addEventListener("change",e=>{const v=parseFloat(String(e.target.value).replace(",","."));
+  if(!(v>0)){e.target.value=fmt(CFG.worth);toast("Enter a number of points above 0");return}
+  CFG.worth=v;e.target.value=fmt(v);store({cfg:CFG});renderTotals()});
+document.addEventListener("input",e=>{const t=e.target;
+  if(t.id==="group"||t.id==="date"){S[t.id]=t.value;store({draft:S})}
+  else if(t.id.startsWith("good-")){S.good[t.id.slice(5)]=t.value;store({draft:S})}
+  else if(t.id.startsWith("next-")){S.next[t.id.slice(5)]=t.value;store({draft:S})}});
+$("psave").onclick=()=>{
+  const name=$("pname").value.trim();if(!name){toast("Give the practical a name");$("pname").focus();return}
+  const looks={};CRIT.forEach(c=>{const v=$("look-"+c.id).value.trim();if(v)looks[c.id]=v});
+  const cur=presetById(S.preset),built=BUILTIN.some(b=>b.id===cur.id);
+  if(built){const p={id:"p"+Date.now(),name,looks};custom.push(p);S.preset=p.id}
+  else{Object.assign(custom.find(p=>p.id===cur.id),{name,looks})}
+  store({custom});renderPresets();renderGrid();renderList();toast("Practical saved")};
+$("pnew").onclick=()=>{S.preset="generic";renderPresets();$("pname").value="";$("pname").focus();renderGrid();renderList()};
+$("pdel").onclick=function(){
+  if(BUILTIN.some(b=>b.id===S.preset))return;
+  if(!this.dataset.arm){this.dataset.arm=1;this.textContent="Click again to delete";setTimeout(()=>{this.textContent="Delete";delete this.dataset.arm},3000);return}
+  custom=custom.filter(p=>p.id!==S.preset);store({custom});S.preset="generic";this.textContent="Delete";delete this.dataset.arm;renderPresets();renderGrid();renderList();toast("Practical deleted")};
+$("copyBtn").onclick=()=>copy(summary(),"Summary copied");
+$("saveBtn").onclick=()=>{
+  if(!S.group.trim()){toast("Add the group or student name first");$("group").focus();return}
+  const T=totals(),l=getList().filter(r=>!r.sample),rec={S:JSON.parse(JSON.stringify(S)),...T};
+  const i=l.findIndex(r=>r.S.group===S.group&&r.S.date===S.date&&r.S.preset===S.preset);if(i>=0)l[i]=rec;else l.push(rec);
+  store({list:l});renderList();toast("Saved to class list")};
+$("newBtn").onclick=()=>{const n=blank(S.preset,S.level);n.on={...S.on};n.date=S.date;S=n;sync();$("group").focus()};
+$("list").addEventListener("click",e=>{
+  if(e.target.dataset.open!=null){S=Object.assign(blank(),JSON.parse(JSON.stringify(getList()[+e.target.dataset.open].S)));sync();window.scrollTo({top:0});toast("Loaded "+S.group)}
+  if(e.target.dataset.del!=null){const l=getList();l.splice(+e.target.dataset.del,1);store({list:l});renderList()}});
+$("clearBtn").onclick=function(){
+  if(this.dataset.arm){store({list:[]});renderList();this.textContent="Clear list";delete this.dataset.arm;return}
+  this.dataset.arm=1;this.textContent="Click again to clear";setTimeout(()=>{this.textContent="Clear list";delete this.dataset.arm},3000)};
+$("csvBtn").onclick=()=>{
+  const q=s=>`"${String(s??"").replace(/"/g,'""')}"`,f=$("filter").checked;
+  const rows=[["Group","Practical","Date","Grid",...CRIT.map(c=>c.name),"IB marks","IB max","Percent","Points","Points max"].map(q).join(",")]
+   .concat(getList().filter(r=>!f||r.S.preset===S.preset).map(r=>[r.S.group,presetById(r.S.preset).name,r.S.date,r.S.level,...CRIT.map(c=>r.S.on[c.id]?(r.S.marks[c.id]??""):""),r.t,r.mx,r.pct,fmt(r.pts??0),fmt(r.worth??3)].map(q).join(",")));
+  copy(rows.join("\n"),"Table copied – paste into Excel")};
+
+(function boot(){
+  const d=load();
+  if(d.draft){S=Object.assign(blank(),d.draft);if(!presets().some(p=>p.id===S.preset))S.preset="generic"}
+  else{
+    S=Object.assign(blank("sep","basic"),{group:"Example group",marks:{rd:4,da:3,co:5,ev:2},
+      good:{rd:"Plan in a sensible order with a labelled sketch.",co:"Clear link between solubility and filtration."},
+      next:{da:"Describe what you saw at each step, not what you did.",ev:"Name a specific problem, e.g. the sand was still wet, and how to fix it."}});
+    if(!d.list)store({list:[{sample:true,S:JSON.parse(JSON.stringify(S)),...totals()}]});
+  }
+  $("worth").value=fmt(CFG.worth);$("round").value=String(CFG.round);
+  sync();
+})();
+</script>
+
+</body>
+</html>
